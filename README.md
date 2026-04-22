@@ -1,25 +1,27 @@
 # Go Financial Planning
 
-Aplicação web para planejamento financeiro com:
-- cadastro e login de usuários
-- registro de receitas/despesas futuras
-- gráficos de projeção mensal
-- autenticação stateful via sessão em cookie
+A web application for personal financial planning with:
+- user registration and login
+- future income/expense tracking
+- monthly projection charts
+- stateful authentication using cookie-based sessions
 
-## Tecnologias
+This is a **study project** focused on AI-assisted development with **Codex**. It was built for learning purposes and to test previously acquired knowledge in the Go language.
+
+## Technologies
 
 - Backend: Go + Chi + SQLite + Goose
 - Frontend: React + Vite + Recharts
-- Segurança: Argon2id (senhas), cookie `HttpOnly`, sessão persistida no banco
+- Security: Argon2id (password hashing), `HttpOnly` cookie, database-backed session storage
 
-## Pré-requisitos
+## Prerequisites
 
-Antes de rodar, tenha instalado:
+Before running the project, install:
 
-- Go 1.24+ (ou compatível com o `go.mod`)
-- Node.js 20+ e npm
+- Go 1.24+ (or a version compatible with `go.mod`)
+- Node.js 20+ and npm
 
-Verifique:
+Check your versions:
 
 ```bash
 go version
@@ -27,7 +29,7 @@ node -v
 npm -v
 ```
 
-## Estrutura do projeto
+## Project Structure
 
 ```text
 backend/
@@ -42,9 +44,9 @@ frontend/
   src/
 ```
 
-## Como rodar (passo a passo)
+## Run the Project (Step by Step)
 
-Abra **2 terminais** na raiz do projeto.
+Open **2 terminals** at the project root.
 
 ### 1) Backend (terminal 1)
 
@@ -54,17 +56,17 @@ go mod tidy
 go run ./cmd/api/main.go
 ```
 
-Ao subir corretamente, deve aparecer algo como:
+If it starts correctly, you should see something like:
 
 ```text
 goose: no migrations to run. current version: 1
 api listening on :8080
 ```
 
-Observações:
-- As migrations rodam automaticamente no startup.
-- O banco SQLite é criado em `backend/finance.db` (por padrão).
-- O projeto usa driver SQLite em Go puro (`modernc.org/sqlite`), então não exige CGO.
+Notes:
+- Migrations run automatically on startup.
+- The SQLite database is created at `backend/finance.db` by default.
+- The project uses a pure Go SQLite driver (`modernc.org/sqlite`), so CGO is not required.
 
 ### 2) Frontend (terminal 2)
 
@@ -74,11 +76,11 @@ npm install
 npm run dev
 ```
 
-Depois acesse:
+Then open:
 
 - `http://localhost:5173`
 
-## Variáveis de ambiente
+## Environment Variables
 
 ### Backend
 
@@ -88,7 +90,7 @@ Depois acesse:
 - `APP_PRODUCTION` (default: `false`)
 - `SESSION_TTL` (default: `168h`)
 
-Exemplo (PowerShell):
+PowerShell example:
 
 ```powershell
 $env:API_ADDR=":8090"
@@ -100,96 +102,96 @@ go run ./cmd/api/main.go
 
 - `VITE_API_URL` (default: `http://localhost:8080/api/v1`)
 
-Se backend estiver em outra porta (exemplo `8090`), configure:
+If backend runs on a different port (for example, `8090`):
 
 ```powershell
 $env:VITE_API_URL="http://localhost:8090/api/v1"
 npm run dev
 ```
 
-## Endpoints da API
+## API Endpoints
 
 ### Healthcheck
 
 - `GET /healthz`
 
-### Autenticação
+### Authentication
 
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/logout`
 - `GET /api/v1/auth/me`
 
-### Transações
+### Transactions
 
 - `GET /api/v1/transactions`
 - `POST /api/v1/transactions`
 - `PUT /api/v1/transactions/{id}`
 - `DELETE /api/v1/transactions/{id}`
 
-### Projeção
+### Forecast
 
 - `GET /api/v1/forecast/monthly?months=12`
 
-## Regras de payload
+## Payload Rules
 
-- `kind`: `income` ou `expense`
-- `amount`: decimal positivo (ex.: `1299.90`)
+- `kind`: `income` or `expense`
+- `amount`: positive decimal (example: `1299.90`)
 - `dueDate`: `YYYY-MM-DD`
-- Login aceita apenas `email` e `password`
-- Cadastro aceita `name`, `email`, `password`
+- Login accepts only `email` and `password`
+- Register accepts `name`, `email`, and `password`
 
-## Solução de problemas
+## Troubleshooting
 
-### 1) Erro de porta em uso (`bind: ... 8080`)
+### 1) Port already in use (`bind: ... 8080`)
 
-Rode backend em outra porta:
+Run backend on another port:
 
 ```powershell
 $env:API_ADDR=":8090"
 go run ./cmd/api/main.go
 ```
 
-E ajuste o frontend:
+Then update frontend:
 
 ```powershell
 $env:VITE_API_URL="http://localhost:8090/api/v1"
 npm run dev
 ```
 
-### 2) Erro de CORS
+### 2) CORS error
 
-Garanta que `FRONTEND_ORIGIN` no backend aponta para a URL exata do frontend (incluindo porta).
+Make sure `FRONTEND_ORIGIN` in backend matches the exact frontend URL (including port).
 
-### 3) Erro `unknown field: name` no login
+### 3) `unknown field: name` during login
 
-Use login com payload apenas:
+Use only this login payload:
 
 ```json
 {
-  "email": "usuario@exemplo.com",
-  "password": "senha1234"
+  "email": "user@example.com",
+  "password": "password1234"
 }
 ```
 
-### 4) Frontend aparentemente não atualiza
+### 4) Frontend not updating
 
-Pare e suba novamente:
+Stop and run again:
 
 ```bash
 npm run dev
 ```
 
-Se necessário, limpe build anterior:
+If needed, rebuild:
 
 ```bash
 cd frontend
 npm run build
 ```
 
-## Segurança implementada
+## Implemented Security
 
-- Senhas com hash Argon2id
-- Sessão stateful com token aleatório e hash SHA-256 no banco
-- Cookie com `HttpOnly` e `SameSite=Lax`
-- Headers de segurança (`X-Frame-Options`, `X-Content-Type-Options`, `CSP`)
+- Password hashing with Argon2id
+- Stateful sessions with random token and SHA-256 hash stored in database
+- `HttpOnly` cookie with `SameSite=Lax`
+- Security headers (`X-Frame-Options`, `X-Content-Type-Options`, `CSP`)
